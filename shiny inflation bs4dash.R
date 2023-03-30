@@ -6,7 +6,7 @@ library(shinythemes)
 library(dashboardthemes)
 library(ggtext)
 library(tidyverse)
-library(fresh)
+#library(fresh)
 library(ggrepel)
 library(bs4Dash)
 
@@ -30,28 +30,8 @@ element_grob.element_textbox_highlight <- function(element, label = "", ...) {
   NextMethod()
 }
 
-x_mid <- mean(c(max(df2$median_income, na.rm = TRUE), 
-                min(df2$median_income, na.rm = TRUE)))
 
-y_mid <- mean(c(max(df2$value, na.rm = TRUE), 
-                min(df2$value, na.rm = TRUE)))
 
-mytheme <- create_theme(
-  adminlte_color(
-    light_blue = "#434C5E"
-  ),
-  adminlte_sidebar(
-    width = "400px",
-    dark_bg = "#D8DEE9",
-    dark_hover_bg = "#81A1C1",
-    dark_color = "#2E3440"
-  ),
-  adminlte_global(
-    content_bg = "#FFF",
-    box_bg = "#D8DEE9", 
-    info_box_bg = "#D8DEE9"
-  )
-)
 
 ui <- dashboardPage(
   
@@ -59,9 +39,9 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("US Cities", tabName = "dashboard", icon = icon("flag-usa")),
-      menuItem("Tab 2", tabName = "widgets", icon = icon("earth-americas"))
+      menuItem("Countries", tabName = "widgets", icon = icon("earth-americas"))
     ),
-    p("Here you'll find some plots comparing inflation around the world")
+    p("Some plots comparing inflation around the world")
   ),
   dashboardBody(#shinyDashboardThemes(theme = "grey_light"), # usando dashboardthemes
     #use_theme(mytheme), #usando fresh
@@ -86,7 +66,7 @@ ui <- dashboardPage(
       
       # Second tab content
       tabItem(tabName = "widgets",
-              h2("Under construction")
+              box(plotOutput("plot4"))
       )
     )
   )
@@ -97,8 +77,8 @@ server <- function(input, output) {
   histdata <- rnorm(500)
   
   my_data <- reactive({
-    df = readRDS("data.rds")
-    df2 = readRDS("data2.rds")
+    
+    dfs=list(df = readRDS("data.rds"), df2 = readRDS("data2.rds"), dfCountries = readRDS("dfCountries.rds"))
   })
   
   # output$plot1 <- renderPlot({
@@ -111,7 +91,7 @@ server <- function(input, output) {
     
     # Extend the palette using colorRampPalette
     extended_palette <- colorRampPalette(palette)(9)
-    
+    df=dfs[[1]]
     ggplot(df,aes(x=date,y=value))+
       geom_line(data=select(df,-city), colour="grey",size=1,alpha=0.5)+
       geom_line(size=1.3,aes(color=city))+
@@ -138,6 +118,13 @@ server <- function(input, output) {
   })
   
   output$plot3<- renderPlot({
+    df2 = dfs[[2]]
+    x_mid <- mean(c(max(df2$median_income, na.rm = TRUE), 
+                    min(df2$median_income, na.rm = TRUE)))
+    
+    y_mid <- mean(c(max(df2$value, na.rm = TRUE), 
+                    min(df2$value, na.rm = TRUE)))
+    
     ggplot(df2,aes(x = median_income, y = value,label=city) ) +
       geom_point(aes(size=df2$difpct*100),color="steelblue") +
       labs(x = "Median Income", y = "CPI (2015=100)", title = "CPI x Median Income and change in CPI from a year ago",size="% change") +
@@ -162,6 +149,38 @@ server <- function(input, output) {
                          label = "**Lower income, lower CPI**",size=4),  
                     fill = NA,color = "grey",
                     label.color = NA)
+  })
+  
+  output$plot4<- renderPlot({
+    dfCountries=dfs[[3]]
+    dfCountries %>% 
+      ggplot( aes(x=date, y=value)) +
+      geom_line( data=dfCountries %>% dplyr::select(-country), aes(group=country2), color="grey", size=0.5, alpha=0.5) +
+      geom_line( aes(color=country), size=1.2 )+
+      scale_color_manual(values=extended_palette) +
+      #theme_ipsum() +
+      theme(
+        #legend.position="none",
+        plot.title = element_text(size=14),
+        panel.grid = element_blank()
+      )+labs(color="City",x=NULL,y=NULL,title="Inflation on several countries",
+             caption="source: International Monetary Fund")+ theme_bw() +
+      facet_wrap(~country)+
+      theme(
+        text=element_text(family="Roboto"),
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1),
+        strip.background = element_blank(),
+        legend.position="none",
+        strip.text = element_textbox_highlight(
+          size = 16, #face = "bold",
+          family="Roboto",
+          fill = "white", box.color = "white", color = "gray40",
+          halign = .5, linetype = 1, r = unit(0, "pt"), width = unit(1, "npc"),
+          padding = margin(2, 0, 1, 0), margin = margin(0, 1, 3, 1),
+          hi.labels = "US Average", hi.family = "Roboto",
+          hi.fill = "firebrick", hi.box.col = "firebrick", hi.col = "white"
+        )
+      )
   })
 }
 
