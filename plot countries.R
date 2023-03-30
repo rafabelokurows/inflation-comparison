@@ -90,6 +90,9 @@ ggplot(dfCountries)+
        caption="source: US Bureau of Labor Statistics")+
   gghighlight(max(value) > 19)
 
+dfCountries = dfCountries %>% 
+  mutate(country2=country)
+
 dfCountries %>% 
   ggplot( aes(x=date, y=value)) +
   geom_line( data=dfCountries %>% dplyr::select(-country), aes(group=country2), color="grey", size=0.5, alpha=0.5) +
