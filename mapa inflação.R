@@ -69,7 +69,7 @@ world_data$bin <- cut(world_data$value, breaks = breaks, include.lowest = TRUE)
 #ADE25D
 #ADC2BE
 "#75B7BD"
-colors <-rev(c("#7F444B", "#A45151", "#c06b5d","#CC9474","#D6BA85","#79B9A1"))
+colors <-rev(c("#7F444B", "#A45151", "#c06b5d","#CC9474","#D6BA85","#6F815F"))
 
 world_data <- world_data %>%
   mutate(color = case_when(
@@ -88,21 +88,21 @@ world_data %>% as.data.frame() %>% count(bin)
 world_data2 = world_data %>% filter(!name.x %in% "Antarctica"&!is.na(geometry)) %>% sf::st_as_sf()
 saveRDS(world_data2,"world_data2.rds")
 # Plot data on map
-ggplot() +
+plot=ggplot() +
   #geom_polygon(data = world_data, aes(fill = value), size=0, alpha=0.9)+ 
-  geom_sf(data = world_data2, aes(fill = color,group=color), size=0, alpha=0.9)+
+  geom_sf(data = world_data2, aes(fill = color,group=color), size=0, alpha=0.8)+
   scale_fill_manual(values = rev(colors),
-                    labels= rev(c("Negative","0 to 5%","5 to 10%","10 to 15%","15 to 20%","More than 20%")),
-                    na.value = "#9D9595") + 
+                    labels= rev(c("Decreased","+0-5%","+5-10%","+10-15%","+15-20%","+20%")),
+                    na.value = "#9D9595") + theme(aspect.ratio = 0.45)+ 
   #scale_fill_gradient(low = "blue", high = "red")+
   # scale_fill_gradientn(colors = rev(c("#653f3e","#7F444B", "#994857", "#c06b5d","#AD5A5A","#B7635C", "#d8bd8a", "#d8d78f")),
   #                      breaks = c(-Inf,2,6,10,15, 20,50,100,round(max(world_data$value,na.rm = T))))+
   # scale_fill_viridis(direction=-1, breaks=c(1,5,10,20,50,100),
   #                   name="Inflation %", guide = guide_legend( keyheight = unit(2, units = "mm"), keywidth=unit(7, units = "mm"), label.position = "bottom", title.position = 'top', nrow=1) )+
   labs(
-    title = "Most recent inflation percentage per country (compared with year before)",
+    title = "Q1/2023 Inflation Percentage vs. Q1/2022",
     caption = "Data: IMF | Created by Rafael Belokurows",
-    fill= "Inflation"
+    fill= "Variation"
   ) +
   theme(
     text = element_text(color = "#22211d"), 
@@ -112,17 +112,23 @@ ggplot() +
     
     plot.title = element_text(size= 12, hjust=0.01, color = "#4e4d47", margin = margin(b = -0.1, t = 0.4, l = 2, unit = "cm")),
     plot.subtitle = element_text(size= 9, hjust=0.01, color = "#4e4d47", margin = margin(b = -0.1, t = 0.43, l = 2, unit = "cm")),
-    plot.caption = element_text( size=7, color = "#4e4d47", margin = margin(b = 0.1, r=-99, unit = "cm") ),
-    legend.title = element_text(size = 8, color = "#4e4d47",face = "bold"),
-    legend.text  = element_text(size = 7, color = "#4e4d47"),
+    plot.caption = element_text( size=6, color = "#4e4d47", margin = margin(b = 0.1, r=-99, unit = "cm") ),
+    legend.title = element_text(size = 7, color = "#4e4d47"),
+    legend.text  = element_text(size = 6, color = "#4e4d47"),
     axis.line = element_blank(),
     axis.text = element_blank(),
-    axis.ticks = element_blank()#,legend.position = c(1, 0.5)
-  )
-
+    axis.ticks = element_blank(),legend.position = c(0.12, 0.3),
+    legend.key = element_rect(colour = NA, fill = NA),
+    legend.key.size = unit(0.32, "cm"),
+    # plot.margin = unit(c(0, 0, 0, 0), "null"),
+    # panel.margin = unit(c(0, 0, 0, 0), "null"),
+    panel.grid = element_blank(),
+    panel.border = element_blank()
+  ) 
+plotly::ggplotly(plot)
 #Austrália
 #Venezuela
-
+ggsave(plot, filename = "map.png",  dpi = 400, type = "cairo")
 
 library(tidyverse)
 
