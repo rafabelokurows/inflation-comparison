@@ -9,11 +9,6 @@ https://public.tableau.com/app/profile/nir.smilga/viz/ConsumerConfidenceIndex/OE
 - [ ] Compare Total Inflation x Inflation on less volatile aspects (Non-food Non-Energy)
 - [ ] Compare inflation on a few US cities/regions
 
-TODO:
-
-#6F815F
-
-
 Data:
 
 * FRED: inflation on countries
@@ -21,4 +16,6 @@ Data:
 * BLS: inflation on US cities
 
 ![image](https://user-images.githubusercontent.com/55976107/227668520-b3cb871a-0ebc-4338-b514-74aa2adfdeb9.png)
+
+
 
