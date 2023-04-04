@@ -11,11 +11,13 @@ https://public.tableau.com/app/profile/nir.smilga/viz/ConsumerConfidenceIndex/OE
 
 TODO:
 
+#6F815F
+
 
 Data:
 
 * FRED: inflation on countries
-* OECD: also inflation on countries (more info)
+* IMF: inflation on countries
 * BLS: inflation on US cities
 
 ![image](https://user-images.githubusercontent.com/55976107/227668520-b3cb871a-0ebc-4338-b514-74aa2adfdeb9.png)
